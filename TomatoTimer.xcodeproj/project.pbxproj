@@ -1,0 +1,461 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		111111111111111111111111 /* TomatoTimerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 211111111111111111111111 /* TomatoTimerApp.swift */; };
+		111111111111111111111112 /* TimerMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 211111111111111111111112 /* TimerMenuView.swift */; };
+		111111111111111111111113 /* TimerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 211111111111111111111113 /* TimerViewModel.swift */; };
+		111111111111111111111114 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 211111111111111111111114 /* NotificationService.swift */; };
+		111111111111111111111115 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 211111111111111111111115 /* Assets.xcassets */; };
+		111111111111111111111116 /* TimerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 211111111111111111111116 /* TimerViewModelTests.swift */; };
+		111111111111111111111117 /* ScreenRecordingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 211111111111111111111119 /* ScreenRecordingService.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		121111111111111111111111 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 011111111111111111111111 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 411111111111111111111111;
+			remoteInfo = TomatoTimer;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		211111111111111111111111 /* TomatoTimerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TomatoTimerApp.swift; sourceTree = "<group>"; };
+		211111111111111111111112 /* TimerMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerMenuView.swift; sourceTree = "<group>"; };
+		211111111111111111111113 /* TimerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerViewModel.swift; sourceTree = "<group>"; };
+		211111111111111111111114 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		211111111111111111111115 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		211111111111111111111116 /* TimerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerViewModelTests.swift; sourceTree = "<group>"; };
+		211111111111111111111117 /* Tomato Timer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tomato Timer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		211111111111111111111118 /* TomatoTimerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TomatoTimerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		211111111111111111111119 /* ScreenRecordingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenRecordingService.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		311111111111111111111111 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		311111111111111111111112 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		011111111111111111111112 = {
+			isa = PBXGroup;
+			children = (
+				311111111111111111111113 /* TomatoTimer */,
+				311111111111111111111114 /* TomatoTimerTests */,
+				311111111111111111111115 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		311111111111111111111113 /* TomatoTimer */ = {
+			isa = PBXGroup;
+			children = (
+				211111111111111111111111 /* TomatoTimerApp.swift */,
+				211111111111111111111112 /* TimerMenuView.swift */,
+				211111111111111111111113 /* TimerViewModel.swift */,
+				211111111111111111111114 /* NotificationService.swift */,
+				211111111111111111111119 /* ScreenRecordingService.swift */,
+				211111111111111111111115 /* Assets.xcassets */,
+			);
+			path = TomatoTimer;
+			sourceTree = "<group>";
+		};
+		311111111111111111111114 /* TomatoTimerTests */ = {
+			isa = PBXGroup;
+			children = (
+				211111111111111111111116 /* TimerViewModelTests.swift */,
+			);
+			path = TomatoTimerTests;
+			sourceTree = "<group>";
+		};
+		311111111111111111111115 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				211111111111111111111117 /* Tomato Timer.app */,
+				211111111111111111111118 /* TomatoTimerTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		411111111111111111111111 /* TomatoTimer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 511111111111111111111111 /* Build configuration list for PBXNativeTarget "TomatoTimer" */;
+			buildPhases = (
+				611111111111111111111111 /* Sources */,
+				311111111111111111111111 /* Frameworks */,
+				611111111111111111111112 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TomatoTimer;
+			productName = TomatoTimer;
+			productReference = 211111111111111111111117 /* Tomato Timer.app */;
+			productType = "com.apple.product-type.application";
+		};
+		411111111111111111111112 /* TomatoTimerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 511111111111111111111112 /* Build configuration list for PBXNativeTarget "TomatoTimerTests" */;
+			buildPhases = (
+				611111111111111111111113 /* Sources */,
+				311111111111111111111112 /* Frameworks */,
+				611111111111111111111114 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				711111111111111111111111 /* PBXTargetDependency */,
+			);
+			name = TomatoTimerTests;
+			productName = TomatoTimerTests;
+			productReference = 211111111111111111111118 /* TomatoTimerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		011111111111111111111111 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2650;
+				LastUpgradeCheck = 2650;
+				TargetAttributes = {
+					411111111111111111111111 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					411111111111111111111112 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = 411111111111111111111111;
+					};
+				};
+			};
+			buildConfigurationList = 511111111111111111111113 /* Build configuration list for PBXProject "TomatoTimer" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				"zh-Hans",
+			);
+			mainGroup = 011111111111111111111112;
+			productRefGroup = 311111111111111111111115 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				411111111111111111111111 /* TomatoTimer */,
+				411111111111111111111112 /* TomatoTimerTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		611111111111111111111112 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				111111111111111111111115 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		611111111111111111111114 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		611111111111111111111111 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				111111111111111111111111 /* TomatoTimerApp.swift in Sources */,
+				111111111111111111111112 /* TimerMenuView.swift in Sources */,
+				111111111111111111111113 /* TimerViewModel.swift in Sources */,
+				111111111111111111111114 /* NotificationService.swift in Sources */,
+				111111111111111111111117 /* ScreenRecordingService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		611111111111111111111113 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				111111111111111111111116 /* TimerViewModelTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		711111111111111111111111 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 411111111111111111111111 /* TomatoTimer */;
+			targetProxy = 121111111111111111111111 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		811111111111111111111111 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		811111111111111111111112 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		811111111111111111111113 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = RG9V36PS85;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Tomato Timer";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.local.TomatoTimer;
+				PRODUCT_MODULE_NAME = TomatoTimer;
+				PRODUCT_NAME = "Tomato Timer";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		811111111111111111111114 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = RG9V36PS85;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Tomato Timer";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.local.TomatoTimer;
+				PRODUCT_MODULE_NAME = TomatoTimer;
+				PRODUCT_NAME = "Tomato Timer";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		811111111111111111111115 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+					BUNDLE_LOADER = "$(TEST_HOST)";
+					CODE_SIGN_STYLE = Automatic;
+					CURRENT_PROJECT_VERSION = 1;
+					DEVELOPMENT_TEAM = RG9V36PS85;
+					GENERATE_INFOPLIST_FILE = YES;
+					MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.local.TomatoTimerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tomato Timer.app/Contents/MacOS/Tomato Timer";
+			};
+			name = Debug;
+		};
+		811111111111111111111116 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+					BUNDLE_LOADER = "$(TEST_HOST)";
+					CODE_SIGN_STYLE = Automatic;
+					CURRENT_PROJECT_VERSION = 1;
+					DEVELOPMENT_TEAM = RG9V36PS85;
+					GENERATE_INFOPLIST_FILE = YES;
+					MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.local.TomatoTimerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tomato Timer.app/Contents/MacOS/Tomato Timer";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		511111111111111111111111 /* Build configuration list for PBXNativeTarget "TomatoTimer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				811111111111111111111113 /* Debug */,
+				811111111111111111111114 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		511111111111111111111112 /* Build configuration list for PBXNativeTarget "TomatoTimerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				811111111111111111111115 /* Debug */,
+				811111111111111111111116 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		511111111111111111111113 /* Build configuration list for PBXProject "TomatoTimer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				811111111111111111111111 /* Debug */,
+				811111111111111111111112 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 011111111111111111111111 /* Project object */;
+}
