@@ -2,193 +2,279 @@ import AppKit
 import SwiftUI
 
 struct TimerMenuView: View {
-    private enum MenuTab {
-        case timer
+    private enum MenuTab: Hashable {
+        case focus
         case stats
+        case settings
+
+        var accessibilityTitle: String {
+            switch self {
+            case .focus:
+                return "专注"
+            case .stats:
+                return "统计"
+            case .settings:
+                return "设置"
+            }
+        }
     }
 
     @ObservedObject var viewModel: TimerViewModel
-    @State private var selectedTab: MenuTab = .timer
+    @State private var selectedTab: MenuTab = .focus
     @State private var speedRecordingDirectoryURL: URL?
+    @State private var showsStartConfirmation = false
+    @State private var startConfirmationTask: Task<Void, Never>?
 
     var body: some View {
-        VStack(spacing: 12) {
-            Picker("", selection: $selectedTab) {
-                Text("计时").tag(MenuTab.timer)
-                Text("统计").tag(MenuTab.stats)
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
+        VStack(spacing: 0) {
+            VStack(spacing: 12) {
+                Picker("", selection: $selectedTab) {
+                    Text("专注").tag(MenuTab.focus)
+                    Text("统计").tag(MenuTab.stats)
+                    Text("设置").tag(MenuTab.settings)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .accessibilityLabel("功能分页")
+                .accessibilityValue(selectedTab.accessibilityTitle)
 
-            Group {
-                switch selectedTab {
-                case .timer:
-                    timerTab
-                case .stats:
-                    statsTab
+                Group {
+                    switch selectedTab {
+                    case .focus:
+                        focusTab
+                    case .stats:
+                        statsTab
+                    case .settings:
+                        settingsTab
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .padding(12)
+
+            Divider()
+
+            Button("退出番茄时钟") {
+                NSApplication.shared.terminate(nil)
+            }
+            .buttonStyle(.plain)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 9)
+        }
+        .frame(width: 320, height: 500)
+        .background(Color(nsColor: .windowBackgroundColor))
+        .background(tabKeyboardShortcuts)
+        .onAppear {
+            selectedTab = .focus
+            refreshSpeedRecordingDirectoryURL()
+        }
+        .onChange(of: viewModel.status) { _, newStatus in
+            guard newStatus == .running, viewModel.phase == .focus else {
+                showsStartConfirmation = false
+                startConfirmationTask?.cancel()
+                return
+            }
+
+            showsStartConfirmation = true
+            startConfirmationTask?.cancel()
+            startConfirmationTask = Task { @MainActor in
+                try? await Task.sleep(for: .seconds(1.6))
+                guard !Task.isCancelled else { return }
+                withAnimation(.easeOut(duration: 0.2)) {
+                    showsStartConfirmation = false
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(width: 300, height: 440)
-        .padding(12)
-        .onAppear {
-            refreshSpeedRecordingDirectoryURL()
+        .onDisappear {
+            startConfirmationTask?.cancel()
         }
     }
 
-    private var timerTab: some View {
-        ThinVerticalScrollView {
-            VStack(spacing: 14) {
-                VStack(spacing: 7) {
-                    Text(viewModel.phaseTitle)
-                        .font(.headline)
-
-                    Text(viewModel.formattedRemainingTime)
-                        .font(.system(size: 42, weight: .semibold, design: .rounded))
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
+    private var focusTab: some View {
+        VStack(spacing: 30) {
+            ZStack {
+                if viewModel.phase == .focus, viewModel.status == .idle {
+                    focusReadiness
+                        .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                } else {
+                    activeTimerHero
+                        .transition(.opacity.combined(with: .scale(scale: 0.98)))
                 }
-
-                HStack(spacing: 8) {
-                    Button {
-                        viewModel.reset()
-                    } label: {
-                        Label("重置", systemImage: "arrow.counterclockwise")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                    .frame(width: 60)
-
-                    Button {
-                        viewModel.toggleRunning()
-                    } label: {
-                        Label(
-                            viewModel.primaryButtonTitle,
-                            systemImage: viewModel.status == .running ? "pause.fill" : "play.fill"
-                        )
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .keyboardShortcut(.space, modifiers: [])
-                    .controlSize(.regular)
-                    .frame(width: 144)
-
-                    Button {
-                        viewModel.skipPhase()
-                    } label: {
-                        Label("跳过", systemImage: "forward.end.fill")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                    .frame(width: 60)
-                }
-
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("时长")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-
-                    VStack(spacing: 8) {
-                        Stepper(value: $viewModel.focusMinutes, in: 1...180) {
-                            settingRow(title: "专注", minutes: viewModel.focusMinutes)
-                        }
-
-                        Stepper(value: $viewModel.breakMinutes, in: 1...60) {
-                            settingRow(title: "休息", minutes: viewModel.breakMinutes)
-                        }
-                    }
-                    .padding(10)
-                    .background(groupBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                    Text("选项")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-
-                    VStack(alignment: .leading, spacing: 9) {
-                        Toggle("开启通知提醒", isOn: $viewModel.notifyOnCompletion)
-
-                        HStack(spacing: 8) {
-                            Toggle("倍速录屏", isOn: $viewModel.recordSpeedVideo)
-                                .disabled(!viewModel.canChangeSpeedRecordingSetting)
-
-                            Spacer(minLength: 4)
-
-                            Button("打开目录") {
-                                openSpeedRecordingSaveLocation()
-                            }
-                            .controlSize(.small)
-
-                            Button("更改目录") {
-                                changeSpeedRecordingSaveLocation()
-                            }
-                            .controlSize(.small)
-                            .disabled(!viewModel.canChangeSpeedRecordingSetting)
-                        }
-
-                        if viewModel.recordSpeedVideo {
-                            HStack(spacing: 8) {
-                                Text("录屏速率")
-
-                                Spacer(minLength: 8)
-
-                                HStack(spacing: 0) {
-                                    ForEach(ScreenRecordingSpeed.allCases) { speed in
-                                        if speed != .five {
-                                            Divider()
-                                                .frame(height: 14)
-                                        }
-
-                                        Button {
-                                            viewModel.recordingSpeed = speed
-                                        } label: {
-                                            Text(speed.shortTitle)
-                                                .font(.caption.weight(
-                                                    viewModel.recordingSpeed == speed ? .semibold : .regular
-                                                ))
-                                                .foregroundStyle(
-                                                    viewModel.recordingSpeed == speed ? Color.white : Color.primary
-                                                )
-                                                .frame(width: 40, height: 22)
-                                                .background(
-                                                    viewModel.recordingSpeed == speed ? Color.accentColor : Color.clear
-                                                )
-                                        }
-                                        .buttonStyle(.plain)
-                                        .help(speed.storageEstimateTitle)
-                                    }
-                                }
-                                .background(Color.secondary.opacity(0.08))
-                                .clipShape(RoundedRectangle(cornerRadius: 5))
-                                .overlay {
-                                    RoundedRectangle(cornerRadius: 5)
-                                        .stroke(Color.secondary.opacity(0.2), lineWidth: 0.5)
-                                }
-                                .disabled(!viewModel.canChangeSpeedRecordingSetting)
-                            }
-                        }
-                    }
-                    .padding(10)
-                    .background(groupBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-
-                if let message = viewModel.speedRecordingStatusMessage {
-                    speedRecordingStatus(message)
-                }
-
-                Divider()
-
-                Button("退出") {
-                    NSApplication.shared.terminate(nil)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
             }
-            .padding(8)
+            .animation(.easeOut(duration: 0.22), value: viewModel.status)
+            .animation(.easeOut(duration: 0.22), value: viewModel.phase)
+
+            timerControls
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .padding(.horizontal, 2)
+        .padding(.vertical, 22)
+    }
+
+    private var focusReadiness: some View {
+        VStack(spacing: 20) {
+            VStack(spacing: 7) {
+                Text("你现在状态怎么样？")
+                    .font(.title3.weight(.semibold))
+
+                Text(viewModel.selectedFocusMood.encouragement)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .contentTransition(.opacity)
+            }
+
+            HStack(alignment: .top, spacing: 7) {
+                ForEach(Array(FocusMood.allCases.enumerated()), id: \.element.id) { index, mood in
+                    moodButton(mood, shortcutNumber: index + 1)
+                }
+            }
+            .animation(.snappy(duration: 0.24), value: viewModel.selectedFocusMood)
+        }
+    }
+
+    private func moodButton(_ mood: FocusMood, shortcutNumber: Int) -> some View {
+        let isSelected = viewModel.selectedFocusMood == mood
+
+        return Button {
+            viewModel.selectFocusMood(mood)
+        } label: {
+            VStack(spacing: 6) {
+                Image(mood.assetName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 64, height: 64)
+                    .scaleEffect(isSelected ? 1.25 : 1)
+                    .frame(width: 80, height: 80)
+
+                Text(mood.title)
+                    .font(.caption.weight(isSelected ? .semibold : .regular))
+                    .foregroundStyle(isSelected ? Color.primary : Color.secondary)
+
+                Group {
+                    if isSelected {
+                        Text("专注\(mood.recommendedMinutes)分钟")
+                            .foregroundStyle(tomatoRed)
+                    } else {
+                        Color.clear
+                    }
+                }
+                .font(.caption2.weight(.medium).monospacedDigit())
+                .frame(height: 14)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 132)
+            .background(isSelected ? tomatoRed.opacity(0.08) : Color.clear)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay {
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isSelected ? tomatoRed.opacity(0.45) : Color.clear, lineWidth: 1)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .keyboardShortcut(
+            KeyEquivalent(Character(String(shortcutNumber))),
+            modifiers: [.option]
+        )
+        .accessibilityLabel("\(mood.title)，推荐 \(mood.recommendedMinutes) 分钟")
+        .accessibilityHint("选择后，本轮将专注 \(mood.recommendedMinutes) 分钟")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .help("\(mood.title) · \(mood.recommendedMinutes) 分钟")
+    }
+
+    private var activeTimerHero: some View {
+        VStack(spacing: 7) {
+            Group {
+                if viewModel.phase == .focus {
+                    Image(viewModel.selectedFocusMood.assetName)
+                        .resizable()
+                        .scaledToFit()
+                } else {
+                    Image(systemName: "cup.and.saucer.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(leafGreen)
+                        .padding(12)
+                }
+            }
+            .frame(width: 70, height: 70)
+
+            Text(viewModel.phaseTitle)
+                .font(.headline)
+
+            Text(viewModel.formattedRemainingTime)
+                .font(.system(size: 42, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .contentTransition(.numericText())
+
+            HStack(spacing: 5) {
+                if showsStartConfirmation {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(leafGreen)
+                        .transition(.opacity.combined(with: .scale))
+                }
+
+                Text(viewModel.supportMessage)
+                    .contentTransition(.opacity)
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .frame(height: 18)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(
+            "\(viewModel.phaseTitle)，剩余 \(viewModel.formattedRemainingTime)。\(viewModel.supportMessage)"
+        )
+    }
+
+    private var timerControls: some View {
+        HStack(spacing: 8) {
+            Button {
+                viewModel.reset()
+            } label: {
+                Image(systemName: "arrow.counterclockwise")
+                    .frame(width: 34, height: 30)
+            }
+            .buttonStyle(.bordered)
+            .help("重置")
+            .keyboardShortcut("r", modifiers: [.command])
+            .accessibilityLabel("重置本轮")
+            .accessibilityHint("返回默认的十五分钟准备状态")
+
+            Button {
+                viewModel.toggleRunning()
+            } label: {
+                Label(
+                    viewModel.primaryButtonTitle,
+                    systemImage: viewModel.status == .running ? "pause.fill" : "play.fill"
+                )
+                .font(.system(size: 13, weight: .semibold))
+                .frame(maxWidth: .infinity, minHeight: 30)
+                .lineLimit(1)
+                .minimumScaleFactor(0.78)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(tomatoRed)
+            .keyboardShortcut(.space, modifiers: [])
+            .controlSize(.regular)
+            .frame(width: 190)
+            .accessibilityLabel(viewModel.primaryButtonTitle)
+            .accessibilityHint(primaryButtonAccessibilityHint)
+
+            Button {
+                viewModel.skipPhase()
+            } label: {
+                Image(systemName: "forward.end.fill")
+                    .frame(width: 34, height: 30)
+            }
+            .buttonStyle(.bordered)
+            .help("跳过当前阶段")
+            .keyboardShortcut(.rightArrow, modifiers: [.command])
+            .accessibilityLabel("跳过当前阶段")
+            .accessibilityHint("提前进入下一个阶段，不记录未完成的专注")
         }
     }
 
@@ -238,24 +324,171 @@ struct TimerMenuView: View {
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
             Spacer()
-
-            Button("退出") {
-                NSApplication.shared.terminate(nil)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.secondary)
         }
         .padding(8)
+    }
+
+    private var settingsTab: some View {
+        ThinVerticalScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                settingsSection(title: "计时") {
+                    VStack(spacing: 10) {
+                        Stepper(value: $viewModel.breakMinutes, in: 1...60) {
+                            settingRow(title: "休息时长", minutes: viewModel.breakMinutes)
+                        }
+                        .disabled(!viewModel.canAdjustBreakDuration)
+                        .accessibilityLabel("休息时长")
+                        .accessibilityValue("\(viewModel.breakMinutes) 分钟")
+                        .accessibilityHint(
+                            viewModel.canAdjustBreakDuration
+                                ? "调整每轮专注结束后的休息时长"
+                                : "本轮计时结束或重置后可以调整"
+                        )
+
+                        Divider()
+
+                        Toggle(
+                            "休息结束自动开启下一轮专注",
+                            isOn: $viewModel.autoStartFocusAfterBreak
+                        )
+                    }
+                }
+
+                settingsSection(title: "提醒") {
+                    Toggle("完成后通知", isOn: $viewModel.notifyOnCompletion)
+                }
+
+                settingsSection(title: "倍速录屏") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Toggle("专注过程开启录屏", isOn: $viewModel.recordSpeedVideo)
+                            .disabled(!viewModel.canChangeSpeedRecordingSetting)
+
+                        if !viewModel.canChangeSpeedRecordingSetting {
+                            Text("本轮计时进行中，结束或重置后即可调整录屏设置")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+
+                        if viewModel.recordSpeedVideo {
+                            Divider()
+
+                            Picker("录屏速率", selection: $viewModel.recordingSpeed) {
+                                ForEach(ScreenRecordingSpeed.allCases) { speed in
+                                    Text(speed.shortTitle).tag(speed)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .disabled(!viewModel.canChangeSpeedRecordingSetting)
+
+                            Text(viewModel.recordingSpeed.storageEstimateTitle)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Divider()
+
+                        HStack(spacing: 8) {
+                            Button {
+                                openSpeedRecordingSaveLocation()
+                            } label: {
+                                Label("打开目录", systemImage: "folder")
+                                    .frame(maxWidth: .infinity)
+                            }
+
+                            Button {
+                                changeSpeedRecordingSaveLocation()
+                            } label: {
+                                Label("更改目录", systemImage: "folder.badge.gearshape")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .disabled(!viewModel.canChangeSpeedRecordingSetting)
+                        }
+                        .controlSize(.small)
+                    }
+                }
+
+                if let message = viewModel.speedRecordingStatusMessage {
+                    speedRecordingStatus(message)
+                }
+            }
+            .padding(8)
+        }
+    }
+
+    private var primaryButtonAccessibilityHint: String {
+        switch viewModel.status {
+        case .idle:
+            return viewModel.phase == .focus
+                ? "立即开始本轮专注"
+                : "立即开始休息"
+        case .running:
+            return "暂停计时，稍后可以继续"
+        case .paused:
+            return "从当前剩余时间继续计时"
+        }
+    }
+
+    private var tabKeyboardShortcuts: some View {
+        HStack(spacing: 0) {
+            keyboardShortcutButton("1", tab: .focus)
+            keyboardShortcutButton("2", tab: .stats)
+            keyboardShortcutButton("3", tab: .settings)
+        }
+        .frame(width: 1, height: 1)
+        .clipped()
+        .opacity(0.001)
+        .accessibilityHidden(true)
+    }
+
+    private func keyboardShortcutButton(_ key: Character, tab: MenuTab) -> some View {
+        Button("") {
+            selectedTab = tab
+        }
+        .keyboardShortcut(KeyEquivalent(key), modifiers: [.command])
     }
 
     private var groupBackground: Color {
         Color.secondary.opacity(0.08)
     }
 
-    private func settingRow(title: String, minutes: Int) -> some View {
-        HStack {
+    private var tomatoRed: Color {
+        Color(red: 0.82, green: 0.16, blue: 0.12)
+    }
+
+    private var leafGreen: Color {
+        Color(red: 0.18, green: 0.46, blue: 0.18)
+    }
+
+    private func settingsSection<Content: View>(
+        title: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 7) {
             Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            content()
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(groupBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+
+    private func settingRow(title: String, minutes: Int, note: String? = nil) -> some View {
+        HStack(spacing: 6) {
+            Text(title)
+
+            if let note {
+                Text(note)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
             Spacer()
+
             Text("\(minutes) 分钟")
                 .foregroundStyle(.secondary)
                 .monospacedDigit()

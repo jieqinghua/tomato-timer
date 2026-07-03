@@ -21,9 +21,62 @@ enum TimerStatus: Equatable {
     case paused
 }
 
+enum FocusMood: String, CaseIterable, Identifiable, Equatable {
+    case tired
+    case steady
+    case energetic
+
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .tired:
+            return "有点累"
+        case .steady:
+            return "还可以"
+        case .energetic:
+            return "状态不错"
+        }
+    }
+
+    var recommendedMinutes: Int {
+        switch self {
+        case .tired:
+            return 5
+        case .steady:
+            return 15
+        case .energetic:
+            return 30
+        }
+    }
+
+    var encouragement: String {
+        switch self {
+        case .tired:
+            return "不求做完，先往前一点"
+        case .steady:
+            return "先把这一小段守住"
+        case .energetic:
+            return "状态不错，趁热推进"
+        }
+    }
+
+    var assetName: String {
+        switch self {
+        case .tired:
+            return "TomatoTired"
+        case .steady:
+            return "TomatoSteady"
+        case .energetic:
+            return "TomatoEnergetic"
+        }
+    }
+}
+
 struct TimerSettings: Equatable {
     var focusMinutes: Int
     var breakMinutes: Int
+    var autoStartFocusAfterBreak: Bool
     var notifyOnCompletion: Bool
     var recordSpeedVideo: Bool
     var recordingSpeed: ScreenRecordingSpeed
@@ -43,6 +96,9 @@ final class TimerViewModel: ObservableObject {
     @Published private(set) var status: TimerStatus
     @Published private(set) var stats: TimerStats
     @Published private(set) var speedRecordingStatusMessage: String?
+    @Published private(set) var selectedFocusMood: FocusMood
+    @Published private(set) var plannedFocusMinutes: Int
+    @Published private(set) var isUsingRecommendedFocusDuration: Bool
 
     @Published var focusMinutes: Int {
         didSet {
@@ -65,6 +121,12 @@ final class TimerViewModel: ObservableObject {
         }
     }
 
+    @Published var autoStartFocusAfterBreak: Bool {
+        didSet {
+            defaults.set(autoStartFocusAfterBreak, forKey: Self.autoStartFocusAfterBreakKey)
+        }
+    }
+
     @Published var recordSpeedVideo: Bool {
         didSet {
             defaults.set(recordSpeedVideo, forKey: Self.recordSpeedVideoKey)
@@ -80,6 +142,7 @@ final class TimerViewModel: ObservableObject {
 
     private static let focusMinutesKey = "focusMinutes"
     private static let breakMinutesKey = "breakMinutes"
+    private static let autoStartFocusAfterBreakKey = "autoStartFocusAfterBreak"
     private static let notifyOnCompletionKey = "notifyOnCompletion"
     private static let recordSpeedVideoKey = "recordSpeedVideo"
     private static let recordingSpeedKey = "recordingSpeed"
@@ -111,6 +174,7 @@ final class TimerViewModel: ObservableObject {
         let savedBreakMinutes = defaults.integer(forKey: Self.breakMinutesKey)
         let focus = savedFocusMinutes == 0 ? 25 : Self.clamped(savedFocusMinutes, range: 1...180)
         let rest = savedBreakMinutes == 0 ? 5 : Self.clamped(savedBreakMinutes, range: 1...60)
+        let autoStartFocusAfterBreak = defaults.object(forKey: Self.autoStartFocusAfterBreakKey) as? Bool ?? true
         let notifyOnCompletion = defaults.object(forKey: Self.notifyOnCompletionKey) as? Bool ?? true
         let recordSpeedVideo = defaults.object(forKey: Self.recordSpeedVideoKey) as? Bool ?? false
         let recordingSpeed = ScreenRecordingSpeed(
@@ -124,6 +188,7 @@ final class TimerViewModel: ObservableObject {
 
         self.focusMinutes = focus
         self.breakMinutes = rest
+        self.autoStartFocusAfterBreak = autoStartFocusAfterBreak
         self.notifyOnCompletion = notifyOnCompletion
         self.recordSpeedVideo = recordSpeedVideo
         self.recordingSpeed = recordingSpeed
@@ -135,7 +200,10 @@ final class TimerViewModel: ObservableObject {
         )
         self.phase = .focus
         self.status = .idle
-        self.remainingSeconds = focus * 60
+        self.selectedFocusMood = .steady
+        self.plannedFocusMinutes = FocusMood.steady.recommendedMinutes
+        self.isUsingRecommendedFocusDuration = true
+        self.remainingSeconds = FocusMood.steady.recommendedMinutes * 60
         self.speedRecordingStatusMessage = nil
         persistStats()
     }
@@ -151,6 +219,7 @@ final class TimerViewModel: ObservableObject {
         TimerSettings(
             focusMinutes: focusMinutes,
             breakMinutes: breakMinutes,
+            autoStartFocusAfterBreak: autoStartFocusAfterBreak,
             notifyOnCompletion: notifyOnCompletion,
             recordSpeedVideo: recordSpeedVideo,
             recordingSpeed: recordingSpeed
@@ -158,6 +227,14 @@ final class TimerViewModel: ObservableObject {
     }
 
     var canChangeSpeedRecordingSetting: Bool {
+        status == .idle
+    }
+
+    var canAdjustDurations: Bool {
+        status == .idle && phase == .focus
+    }
+
+    var canAdjustBreakDuration: Bool {
         status == .idle
     }
 
@@ -195,15 +272,44 @@ final class TimerViewModel: ObservableObject {
         }
     }
 
+    var supportMessage: String {
+        switch (phase, status) {
+        case (.focus, .idle):
+            return selectedFocusMood.encouragement
+        case (.focus, .running):
+            return "已经开始了，先守住这一小段"
+        case (.focus, .paused):
+            return "停一下也没关系，准备好再继续"
+        case (.rest, .running):
+            return "离开屏幕，轻轻松一会儿"
+        case (.rest, .paused), (.rest, .idle):
+            return "休息一会儿，准备好再继续"
+        }
+    }
+
     var primaryButtonTitle: String {
         switch status {
         case .idle:
-            return "开始"
+            switch phase {
+            case .focus:
+                return "开始专注 \(plannedFocusMinutes) 分钟"
+            case .rest:
+                return "开始休息"
+            }
         case .running:
             return "暂停"
         case .paused:
             return "继续"
         }
+    }
+
+    func selectFocusMood(_ mood: FocusMood) {
+        guard phase == .focus, status == .idle else { return }
+
+        selectedFocusMood = mood
+        plannedFocusMinutes = mood.recommendedMinutes
+        isUsingRecommendedFocusDuration = true
+        remainingSeconds = plannedFocusMinutes * 60
     }
 
     func start() {
@@ -229,8 +335,7 @@ final class TimerViewModel: ObservableObject {
         stopTimer()
         discardSpeedRecordingIfNeeded()
         status = .idle
-        phase = .focus
-        remainingSeconds = totalSeconds(for: .focus)
+        prepareDefaultFocusSession()
     }
 
     func skipPhase() {
@@ -266,17 +371,38 @@ final class TimerViewModel: ObservableObject {
 
     private func transitionToNextPhase(sendNotification: Bool) {
         let nextPhase = phase.next
-        phase = nextPhase
-        remainingSeconds = totalSeconds(for: nextPhase)
 
         if sendNotification, notifyOnCompletion {
             notificationService.sendPhaseFinishedNotification(nextPhase: nextPhase)
         }
 
-        if status == .running {
-            startOrResumeSpeedRecordingIfNeeded()
-            startTimer()
+        switch nextPhase {
+        case .rest:
+            phase = .rest
+            remainingSeconds = totalSeconds(for: .rest)
+
+            if status == .running {
+                startTimer()
+            }
+        case .focus:
+            stopTimer()
+            status = .idle
+            prepareDefaultFocusSession()
+
+            if sendNotification, autoStartFocusAfterBreak {
+                status = .running
+                startOrResumeSpeedRecordingIfNeeded()
+                startTimer()
+            }
         }
+    }
+
+    private func prepareDefaultFocusSession() {
+        phase = .focus
+        selectedFocusMood = .steady
+        plannedFocusMinutes = FocusMood.steady.recommendedMinutes
+        isUsingRecommendedFocusDuration = true
+        remainingSeconds = plannedFocusMinutes * 60
     }
 
     private func requestNotificationAuthorizationIfNeeded() {
@@ -387,8 +513,16 @@ final class TimerViewModel: ObservableObject {
     }
 
     private func applyDurationChangeIfNeeded(for changedPhase: TimerPhase) {
-        guard phase == changedPhase, status != .running else { return }
-        remainingSeconds = totalSeconds(for: changedPhase)
+        guard phase == changedPhase, status == .idle else { return }
+
+        switch changedPhase {
+        case .focus:
+            plannedFocusMinutes = Self.clamped(focusMinutes, range: 1...180)
+            isUsingRecommendedFocusDuration = false
+            remainingSeconds = plannedFocusMinutes * 60
+        case .rest:
+            remainingSeconds = totalSeconds(for: .rest)
+        }
     }
 
     private func recordCompletedFocusSessionIfNeeded() {
@@ -396,7 +530,7 @@ final class TimerViewModel: ObservableObject {
 
         refreshTodayStatsIfNeeded()
         stats.completedFocusSessionsToday += 1
-        stats.focusedMinutesToday += Self.clamped(focusMinutes, range: 1...180)
+        stats.focusedMinutesToday += plannedFocusMinutes
         stats.completedFocusSessionsTotal += 1
         persistStats()
     }
@@ -424,7 +558,7 @@ final class TimerViewModel: ObservableObject {
     private func totalSeconds(for phase: TimerPhase) -> Int {
         switch phase {
         case .focus:
-            return Self.clamped(focusMinutes, range: 1...180) * 60
+            return plannedFocusMinutes * 60
         case .rest:
             return Self.clamped(breakMinutes, range: 1...60) * 60
         }
