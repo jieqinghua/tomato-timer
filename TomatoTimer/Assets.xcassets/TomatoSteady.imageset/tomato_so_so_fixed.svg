@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <title>Animated tomato mood icon</title>
+  <desc>Flat anthropomorphic tomato character SVG animation.</desc>
+  <g>
+    <g id="character" transform="translate(0,0)">
+      <animateTransform attributeName="transform" type="translate" values="0,0;0,3;0,0" dur="3s" repeatCount="indefinite"/>
+
+      <path d="M180 175
+               C160 205 150 235 150 276
+               C150 354 203 398 280 398
+               C360 398 406 360 406 286
+               C406 229 383 192 347 171
+               C306 147 229 148 180 175Z"
+            fill="#EF476F"/>
+
+      <g id="leaves" transform="translate(0,-2)">
+        <path d="M244 136 C215 100 162 99 136 136 C118 163 126 192 154 203 C182 214 225 204 244 182Z" fill="#A7C957"/>
+        <path d="M247 139 C249 95 273 61 305 55 C335 49 356 71 350 98 C344 124 313 151 278 165Z" fill="#A7C957"/>
+        <path d="M265 142 C308 117 355 116 387 135 C416 152 420 184 399 204 C378 224 338 226 301 208Z" fill="#A7C957"/>
+        <path d="M247 142 C235 186 249 225 279 233 C307 240 329 218 330 186 C331 157 309 131 281 120Z" fill="#A7C957"/>
+      </g>
+
+      <g stroke="#0B4658" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M218 395 L214 459 L176 459 C165 459 159 451 159 444 C159 431 171 426 185 426 L223 426"/>
+        <path d="M304 395 L302 460 L266 460 C254 460 247 452 247 444 C247 432 260 428 273 428 L302 428"/>
+      </g>
+    </g>
+
+    <g id="face">
+      <ellipse cx="226" cy="281" rx="26" ry="24" fill="#F8F8F8"/>
+      <ellipse cx="324" cy="284" rx="26" ry="24" fill="#F8F8F8"/>
+      <circle cx="234" cy="281" r="6.5" fill="#0B4658"/>
+      <circle cx="329" cy="284" r="6.5" fill="#0B4658"/>
+
+      <path d="M239 339 C253 350 274 350 287 339" stroke="#0B4658" stroke-width="8" stroke-linecap="round" fill="none">
+        <animate attributeName="d" dur="3.2s" repeatCount="indefinite"
+          values="M239 339 C253 350 274 350 287 339;
+                  M240 339 C254 348 273 348 286 339;
+                  M239 339 C253 350 274 350 287 339"/>
+      </path>
+    </g>
+    </g>
+</svg>

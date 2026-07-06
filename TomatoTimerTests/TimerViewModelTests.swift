@@ -48,7 +48,7 @@ final class TimerViewModelTests: XCTestCase {
         XCTAssertEqual(
             viewModel.settings,
             TimerSettings(
-                focusMinutes: 25,
+                focusMinutes: 15,
                 breakMinutes: 5,
                 autoStartFocusAfterBreak: true,
                 notifyOnCompletion: true,
@@ -76,8 +76,61 @@ final class TimerViewModelTests: XCTestCase {
         XCTAssertEqual(FocusMood.energetic.recommendedMinutes, 30)
     }
 
+    func testDurationRangesSelectTheRequestedMascotAssets() {
+        XCTAssertEqual(FocusMood.forDuration(15), .steady)
+        XCTAssertEqual(FocusMood.forDuration(16), .tired)
+        XCTAssertEqual(FocusMood.forDuration(30), .tired)
+        XCTAssertEqual(FocusMood.forDuration(31), .energetic)
+        XCTAssertEqual(FocusMood.forDuration(60), .energetic)
+    }
+
+    func testFiveMinuteControlsAdjustTheReadySessionWithinBounds() {
+        viewModel.adjustPlannedFocusMinutes(by: -5)
+        XCTAssertEqual(viewModel.plannedFocusMinutes, 10)
+        XCTAssertEqual(viewModel.remainingSeconds, 10 * 60)
+        XCTAssertEqual(viewModel.focusMascotAssetName, "TomatoSteady")
+
+        for _ in 0..<12 {
+            viewModel.adjustPlannedFocusMinutes(by: 5)
+        }
+
+        XCTAssertEqual(viewModel.plannedFocusMinutes, 60)
+        XCTAssertEqual(viewModel.focusMascotAssetName, "TomatoEnergetic")
+
+        viewModel.start()
+        viewModel.adjustPlannedFocusMinutes(by: -5)
+        XCTAssertEqual(viewModel.plannedFocusMinutes, 60)
+    }
+
+    func testHourRingFractionUsesSixtyMinutesAsAFullCircle() {
+        XCTAssertEqual(viewModel.hourRingFraction, 0.25, accuracy: 0.000_001)
+
+        for _ in 0..<5 {
+            viewModel.adjustPlannedFocusMinutes(by: 5)
+        }
+
+        XCTAssertEqual(viewModel.plannedFocusMinutes, 40)
+        XCTAssertEqual(viewModel.hourRingFraction, 2.0 / 3.0, accuracy: 0.000_001)
+
+        viewModel.start()
+        viewModel.tick()
+        XCTAssertEqual(viewModel.hourRingFraction, 2_399.0 / 3_600.0, accuracy: 0.000_001)
+    }
+
+    func testReadyEncouragementsAreShortSingleLineAndRotateWithoutRepeating() {
+        XCTAssertGreaterThanOrEqual(TimerViewModel.readyEncouragements.count, 8)
+        XCTAssertTrue(TimerViewModel.readyEncouragements.allSatisfy { $0.count <= 10 })
+        XCTAssertTrue(TimerViewModel.readyEncouragements.allSatisfy { !$0.contains("\n") })
+
+        let current = viewModel.readyEncouragement
+        viewModel.refreshReadyEncouragement()
+
+        XCTAssertNotEqual(viewModel.readyEncouragement, current)
+        XCTAssertTrue(TimerViewModel.readyEncouragements.contains(viewModel.readyEncouragement))
+    }
+
     func testSelectingMoodUpdatesThisSessionWithoutChangingSavedDuration() {
-        XCTAssertEqual(viewModel.focusMinutes, 25)
+        XCTAssertEqual(viewModel.focusMinutes, 15)
 
         viewModel.selectFocusMood(.tired)
 
@@ -85,13 +138,13 @@ final class TimerViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.plannedFocusMinutes, 5)
         XCTAssertEqual(viewModel.remainingSeconds, 5 * 60)
         XCTAssertTrue(viewModel.isUsingRecommendedFocusDuration)
-        XCTAssertEqual(viewModel.focusMinutes, 25)
+        XCTAssertEqual(viewModel.focusMinutes, 15)
 
         viewModel.selectFocusMood(.energetic)
 
         XCTAssertEqual(viewModel.plannedFocusMinutes, 30)
         XCTAssertEqual(viewModel.remainingSeconds, 30 * 60)
-        XCTAssertEqual(viewModel.focusMinutes, 25)
+        XCTAssertEqual(viewModel.focusMinutes, 15)
     }
 
     func testCustomDurationOverridesRecommendationAndPersists() {
@@ -704,48 +757,68 @@ final class TimerViewModelTests: XCTestCase {
         )
     }
 
-    func testTabsRenderForVisualQA() throws {
+    func testCoreStatesRenderForVisualQA() throws {
         let hostingView = NSHostingView(rootView: TimerMenuView(viewModel: viewModel))
         hostingView.appearance = NSAppearance(named: .aqua)
-        hostingView.frame = NSRect(x: 0, y: 0, width: 320, height: 500)
+        hostingView.frame = NSRect(x: 0, y: 0, width: 291, height: 495)
         hostingView.layoutSubtreeIfNeeded()
 
         try writeSnapshot(of: hostingView, named: "focus")
 
-        guard let tabControl: NSSegmentedControl = firstDescendant(in: hostingView) else {
-            return XCTFail("找不到三段式 tab 控件")
+        for (tab, name) in [
+            (TimerMenuView.MenuTab.stats, "stats-typography"),
+            (TimerMenuView.MenuTab.settings, "settings-typography")
+        ] {
+            let tabHostingView = NSHostingView(
+                rootView: TimerMenuView(viewModel: viewModel, initialTab: tab)
+            )
+            tabHostingView.appearance = NSAppearance(named: .aqua)
+            tabHostingView.frame = NSRect(x: 0, y: 0, width: 291, height: 495)
+            refresh(tabHostingView)
+            try writeSnapshot(of: tabHostingView, named: name)
         }
-        XCTAssertEqual(tabControl.segmentCount, 3)
 
         viewModel.start()
+        viewModel.tick()
         let runningHostingView = NSHostingView(rootView: TimerMenuView(viewModel: viewModel))
         runningHostingView.appearance = NSAppearance(named: .aqua)
-        runningHostingView.frame = NSRect(x: 0, y: 0, width: 320, height: 500)
+        runningHostingView.frame = NSRect(x: 0, y: 0, width: 291, height: 495)
         refresh(runningHostingView)
         try writeSnapshot(of: runningHostingView, named: "focus-running")
 
-        guard let runningTabControl: NSSegmentedControl = firstDescendant(in: runningHostingView) else {
-            return XCTFail("找不到运行态三段式 tab 控件")
-        }
-        runningTabControl.selectedSegment = 2
-        runningTabControl.sendAction(runningTabControl.action, to: runningTabControl.target)
-        refresh(runningHostingView)
-        try writeSnapshot(of: runningHostingView, named: "settings-running")
+        let previewDefaultsName = "TimerDesignPreview-\(UUID().uuidString)"
+        let previewDefaults = UserDefaults(suiteName: previewDefaultsName)!
+        let previewRunningViewModel = TimerViewModel(
+            defaults: previewDefaults,
+            notificationService: notificationService,
+            screenRecordingService: screenRecordingService,
+            currentDateProvider: { self.currentDate }
+        )
+        previewRunningViewModel.start()
+        previewRunningViewModel.tick()
 
         viewModel.reset()
-
-        for (index, name) in [(1, "stats"), (2, "settings")] {
-            tabControl.selectedSegment = index
-            tabControl.sendAction(tabControl.action, to: tabControl.target)
-            refresh(hostingView)
-            try writeSnapshot(of: hostingView, named: name)
+        for _ in 0..<5 {
+            viewModel.adjustPlannedFocusMinutes(by: 5)
         }
 
-        let darkHostingView = NSHostingView(rootView: TimerMenuView(viewModel: viewModel))
-        darkHostingView.appearance = NSAppearance(named: .darkAqua)
-        darkHostingView.frame = NSRect(x: 0, y: 0, width: 320, height: 500)
-        refresh(darkHostingView)
-        try writeSnapshot(of: darkHostingView, named: "focus-dark")
+        let fortyMinuteHostingView = NSHostingView(rootView: TimerMenuView(viewModel: viewModel))
+        fortyMinuteHostingView.appearance = NSAppearance(named: .aqua)
+        fortyMinuteHostingView.frame = NSRect(x: 0, y: 0, width: 291, height: 495)
+        refresh(fortyMinuteHostingView)
+        try writeSnapshot(of: fortyMinuteHostingView, named: "focus-40")
+
+        let preview = NSHostingView(
+            rootView: TimerDesignPreview(
+                idleViewModel: viewModel,
+                runningViewModel: previewRunningViewModel
+            )
+        )
+        preview.appearance = NSAppearance(named: .aqua)
+        preview.frame = NSRect(x: 0, y: 0, width: 1_448, height: 1_086)
+        refresh(preview)
+        try writeSnapshot(of: preview, named: "design-preview")
+        previewDefaults.removePersistentDomain(forName: previewDefaultsName)
     }
 
     private func completeCurrentMinute() {

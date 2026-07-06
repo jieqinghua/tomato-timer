@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <title>Animated tomato mood icon</title>
+  <desc>Flat anthropomorphic tomato character SVG animation.</desc>
+  <g>
+    <g id="character" transform="translate(0,0)">
+      <animateTransform attributeName="transform" type="translate" values="0,0;0,6;0,0" dur="3.4s" repeatCount="indefinite"/>
+
+      <path d="M180 175
+               C160 205 150 235 150 276
+               C150 354 203 398 280 398
+               C360 398 406 360 406 286
+               C406 229 383 192 347 171
+               C306 147 229 148 180 175Z"
+            fill="#EF476F"/>
+
+      <g id="leaves" transform="translate(0,-2)">
+        <path d="M244 136 C215 100 162 99 136 136 C118 163 126 192 154 203 C182 214 225 204 244 182Z" fill="#A7C957"/>
+        <path d="M247 139 C249 95 273 61 305 55 C335 49 356 71 350 98 C344 124 313 151 278 165Z" fill="#A7C957"/>
+        <path d="M265 142 C308 117 355 116 387 135 C416 152 420 184 399 204 C378 224 338 226 301 208Z" fill="#A7C957"/>
+        <path d="M247 142 C235 186 249 225 279 233 C307 240 329 218 330 186 C331 157 309 131 281 120Z" fill="#A7C957"/>
+      </g>
+
+      <g stroke="#0B4658" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M218 395 L214 459 L176 459 C165 459 159 451 159 444 C159 431 171 426 185 426 L223 426"/>
+        <path d="M304 395 L302 460 L266 460 C254 460 247 452 247 444 C247 432 260 428 273 428 L302 428"/>
+      </g>
+    </g>
+
+    <g id="face">
+      <ellipse cx="227" cy="278" rx="27" ry="24" fill="#F8F8F8"/>
+      <ellipse cx="325" cy="281" rx="26" ry="24" fill="#F8F8F8"/>
+      <circle cx="235" cy="280" r="6.5" fill="#0B4658"/>
+      <circle cx="329" cy="283" r="6.5" fill="#0B4658"/>
+
+      <path d="M203 289 C218 299 244 298 254 290" stroke="#0B4658" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.55"/>
+      <path d="M301 292 C315 301 341 300 350 292" stroke="#0B4658" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.55"/>
+
+      <path d="M243 346 C256 336 272 336 284 346 C274 347 259 352 248 358" stroke="#0B4658" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <animate attributeName="d" dur="3.4s" repeatCount="indefinite"
+          values="M243 346 C256 336 272 336 284 346 C274 347 259 352 248 358;
+                  M243 348 C257 340 272 340 284 347 C273 350 258 354 246 357;
+                  M243 346 C256 336 272 336 284 346 C274 347 259 352 248 358"/>
+      </path>
+
+      <path d="M235 247 C224 244 213 245 205 251" stroke="#0B4658" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.45"/>
+      <path d="M317 250 C327 245 339 246 346 252" stroke="#0B4658" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.45"/>
+
+      <g stroke="#0B4658" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M378 328 C397 323 406 310 400 296">
+          <animate attributeName="d" dur="3.4s" repeatCount="indefinite"
+            values="M378 328 C397 323 406 310 400 296;
+                    M380 332 C396 326 401 314 397 301;
+                    M378 328 C397 323 406 310 400 296"/>
+        </path>
+      </g>
+    </g>
+    </g>
+</svg>

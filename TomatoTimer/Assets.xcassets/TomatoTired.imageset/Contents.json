@@ -1,13 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "tomato_tired.png",
+      "filename" : "tomato_slightly_tired_fixed.svg",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
       "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {

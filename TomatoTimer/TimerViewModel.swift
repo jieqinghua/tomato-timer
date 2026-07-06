@@ -71,6 +71,17 @@ enum FocusMood: String, CaseIterable, Identifiable, Equatable {
             return "TomatoEnergetic"
         }
     }
+
+    static func forDuration(_ minutes: Int) -> FocusMood {
+        switch minutes {
+        case ...15:
+            return .steady
+        case 16...30:
+            return .tired
+        default:
+            return .energetic
+        }
+    }
 }
 
 struct TimerSettings: Equatable {
@@ -91,12 +102,26 @@ struct TimerStats: Equatable {
 
 @MainActor
 final class TimerViewModel: ObservableObject {
+    static let readyEncouragements = [
+        "来定个小目标吧",
+        "你专注时最迷人哦",
+        "每一分钟都值得",
+        "今天也向前一点",
+        "先开始再说",
+        "把这一小段守住",
+        "慢慢来会更快",
+        "专注让此刻发光",
+        "小步也算在前进",
+        "现在就是好时机"
+    ]
+
     @Published private(set) var remainingSeconds: Int
     @Published private(set) var phase: TimerPhase
     @Published private(set) var status: TimerStatus
     @Published private(set) var stats: TimerStats
     @Published private(set) var speedRecordingStatusMessage: String?
     @Published private(set) var selectedFocusMood: FocusMood
+    @Published private(set) var readyEncouragement: String
     @Published private(set) var plannedFocusMinutes: Int
     @Published private(set) var isUsingRecommendedFocusDuration: Bool
 
@@ -156,6 +181,7 @@ final class TimerViewModel: ObservableObject {
     private let screenRecordingService: ScreenRecordingService
     private let currentDateProvider: () -> Date
     private var timer: Timer?
+    private var readyEncouragementIndex: Int
     private var isSpeedRecordingSessionActive = false
     private var isSpeedRecordingPaused = false
 
@@ -172,7 +198,7 @@ final class TimerViewModel: ObservableObject {
 
         let savedFocusMinutes = defaults.integer(forKey: Self.focusMinutesKey)
         let savedBreakMinutes = defaults.integer(forKey: Self.breakMinutesKey)
-        let focus = savedFocusMinutes == 0 ? 25 : Self.clamped(savedFocusMinutes, range: 1...180)
+        let focus = savedFocusMinutes == 0 ? 15 : Self.clamped(savedFocusMinutes, range: 1...60)
         let rest = savedBreakMinutes == 0 ? 5 : Self.clamped(savedBreakMinutes, range: 1...60)
         let autoStartFocusAfterBreak = defaults.object(forKey: Self.autoStartFocusAfterBreakKey) as? Bool ?? true
         let notifyOnCompletion = defaults.object(forKey: Self.notifyOnCompletionKey) as? Bool ?? true
@@ -185,6 +211,7 @@ final class TimerViewModel: ObservableObject {
         let savedTotal = defaults.integer(forKey: Self.completedFocusSessionsTotalKey)
         let savedTodaySessions = defaults.integer(forKey: Self.completedFocusSessionsTodayKey)
         let savedTodayMinutes = defaults.integer(forKey: Self.focusedMinutesTodayKey)
+        let encouragementIndex = Int.random(in: Self.readyEncouragements.indices)
 
         self.focusMinutes = focus
         self.breakMinutes = rest
@@ -201,6 +228,8 @@ final class TimerViewModel: ObservableObject {
         self.phase = .focus
         self.status = .idle
         self.selectedFocusMood = .steady
+        self.readyEncouragementIndex = encouragementIndex
+        self.readyEncouragement = Self.readyEncouragements[encouragementIndex]
         self.plannedFocusMinutes = FocusMood.steady.recommendedMinutes
         self.isUsingRecommendedFocusDuration = true
         self.remainingSeconds = FocusMood.steady.recommendedMinutes * 60
@@ -246,6 +275,14 @@ final class TimerViewModel: ObservableObject {
 
     var formattedRemainingTime: String {
         Self.format(seconds: remainingSeconds)
+    }
+
+    var hourRingFraction: Double {
+        min(max(Double(remainingSeconds) / 3_600, 0), 1)
+    }
+
+    var focusMascotAssetName: String {
+        FocusMood.forDuration(plannedFocusMinutes).assetName
     }
 
     var menuBarTitle: String? {
@@ -310,6 +347,19 @@ final class TimerViewModel: ObservableObject {
         plannedFocusMinutes = mood.recommendedMinutes
         isUsingRecommendedFocusDuration = true
         remainingSeconds = plannedFocusMinutes * 60
+    }
+
+    func adjustPlannedFocusMinutes(by delta: Int) {
+        guard canAdjustDurations else { return }
+
+        let adjustedMinutes = Self.clamped(plannedFocusMinutes + delta, range: 5...60)
+        focusMinutes = adjustedMinutes
+        selectedFocusMood = FocusMood.forDuration(adjustedMinutes)
+    }
+
+    func refreshReadyEncouragement() {
+        guard phase == .focus, status == .idle else { return }
+        advanceReadyEncouragement()
     }
 
     func start() {
@@ -403,6 +453,15 @@ final class TimerViewModel: ObservableObject {
         plannedFocusMinutes = FocusMood.steady.recommendedMinutes
         isUsingRecommendedFocusDuration = true
         remainingSeconds = plannedFocusMinutes * 60
+        advanceReadyEncouragement()
+    }
+
+    private func advanceReadyEncouragement() {
+        guard Self.readyEncouragements.count > 1 else { return }
+
+        let offset = Int.random(in: 1..<Self.readyEncouragements.count)
+        readyEncouragementIndex = (readyEncouragementIndex + offset) % Self.readyEncouragements.count
+        readyEncouragement = Self.readyEncouragements[readyEncouragementIndex]
     }
 
     private func requestNotificationAuthorizationIfNeeded() {
@@ -517,7 +576,7 @@ final class TimerViewModel: ObservableObject {
 
         switch changedPhase {
         case .focus:
-            plannedFocusMinutes = Self.clamped(focusMinutes, range: 1...180)
+            plannedFocusMinutes = Self.clamped(focusMinutes, range: 1...60)
             isUsingRecommendedFocusDuration = false
             remainingSeconds = plannedFocusMinutes * 60
         case .rest:
