@@ -251,7 +251,7 @@ struct TimerMenuView: View {
 
                     Divider().overlay(TomatoPalette.border)
 
-                    Toggle("休息结束自动开始专注", isOn: $viewModel.autoStartFocusAfterBreak)
+                    Toggle("休息结束时自动开启下一轮专注", isOn: $viewModel.autoStartFocusAfterBreak)
                         .tint(TomatoPalette.red)
                 }
 
@@ -270,7 +270,9 @@ struct TimerMenuView: View {
 
                         Picker("录屏速率", selection: $viewModel.recordingSpeed) {
                             ForEach(ScreenRecordingSpeed.allCases) { speed in
-                                Text(speed.shortTitle).tag(speed)
+                                Text(speed.shortTitle)
+                                    .tag(speed)
+                                    .help(speed.storageEstimateTitle)
                             }
                         }
                         .pickerStyle(.segmented)
@@ -606,8 +608,14 @@ private struct TimeSetupControls: View {
                         .fill(.white.opacity(0.38))
                         .frame(width: 1, height: 20)
 
-                    Text("启动")
-                        .fontWeight(.bold)
+                    HStack(spacing: 6) {
+                        Image(systemName: "play.fill")
+                            .font(.system(size: TomatoTypography.scaledSmall * 0.72, weight: .bold))
+                            .offset(x: 1)
+
+                        Text("启动")
+                            .fontWeight(.bold)
+                    }
                 }
                 .font(.system(size: TomatoTypography.scaledSmall, weight: .semibold, design: .rounded))
                 .foregroundStyle(.white)
@@ -662,7 +670,7 @@ private struct RunningControls: View {
                 viewModel.toggleRunning()
             } label: {
                 Text(viewModel.status == .running ? "暂停" : "继续")
-                    .font(.system(size: TomatoTypography.scaledHeading, weight: .bold, design: .rounded))
+                    .font(.system(size: TomatoTypography.scaledSmall, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, minHeight: 68)
                     .background(TomatoPalette.primaryGradient)
@@ -691,9 +699,9 @@ private struct RunningControls: View {
         Button(action: action) {
             VStack(spacing: 5) {
                 Image(systemName: systemImage)
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.system(size: 17, weight: .regular))
                 Text(title)
-                    .font(.system(size: TomatoTypography.scaledSmall, weight: .semibold))
+                    .font(.system(size: TomatoTypography.scaledSmall, weight: .regular))
             }
             .foregroundStyle(TomatoPalette.primaryText)
             .frame(width: 62, height: 68)

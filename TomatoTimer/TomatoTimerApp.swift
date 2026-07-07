@@ -11,7 +11,13 @@ struct TomatoTimerApp: App {
             TimerMenuView(viewModel: viewModel)
         } label: {
             HStack(spacing: 4) {
-                Image(systemName: "hourglass")
+                Image("TomatoMenuBarIcon")
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 18, height: 18)
+                    .foregroundStyle(.primary)
+                    .accessibilityHidden(true)
                 if let menuBarTitle = viewModel.menuBarTitle {
                     Text(menuBarTitle)
                         .monospacedDigit()

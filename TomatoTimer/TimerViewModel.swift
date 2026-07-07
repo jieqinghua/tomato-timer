@@ -75,9 +75,9 @@ enum FocusMood: String, CaseIterable, Identifiable, Equatable {
     static func forDuration(_ minutes: Int) -> FocusMood {
         switch minutes {
         case ...15:
-            return .steady
-        case 16...30:
             return .tired
+        case 16...30:
+            return .steady
         default:
             return .energetic
         }

@@ -77,9 +77,9 @@ final class TimerViewModelTests: XCTestCase {
     }
 
     func testDurationRangesSelectTheRequestedMascotAssets() {
-        XCTAssertEqual(FocusMood.forDuration(15), .steady)
-        XCTAssertEqual(FocusMood.forDuration(16), .tired)
-        XCTAssertEqual(FocusMood.forDuration(30), .tired)
+        XCTAssertEqual(FocusMood.forDuration(15), .tired)
+        XCTAssertEqual(FocusMood.forDuration(16), .steady)
+        XCTAssertEqual(FocusMood.forDuration(30), .steady)
         XCTAssertEqual(FocusMood.forDuration(31), .energetic)
         XCTAssertEqual(FocusMood.forDuration(60), .energetic)
     }
@@ -88,7 +88,7 @@ final class TimerViewModelTests: XCTestCase {
         viewModel.adjustPlannedFocusMinutes(by: -5)
         XCTAssertEqual(viewModel.plannedFocusMinutes, 10)
         XCTAssertEqual(viewModel.remainingSeconds, 10 * 60)
-        XCTAssertEqual(viewModel.focusMascotAssetName, "TomatoSteady")
+        XCTAssertEqual(viewModel.focusMascotAssetName, "TomatoTired")
 
         for _ in 0..<12 {
             viewModel.adjustPlannedFocusMinutes(by: 5)
@@ -358,9 +358,9 @@ final class TimerViewModelTests: XCTestCase {
         XCTAssertEqual(ScreenRecordingSpeed.five.shortTitle, "5x")
         XCTAssertEqual(ScreenRecordingSpeed.ten.shortTitle, "10x")
         XCTAssertEqual(ScreenRecordingSpeed.twenty.shortTitle, "20x")
-        XCTAssertEqual(ScreenRecordingSpeed.five.storageEstimateTitle, "约 120M/30分钟")
-        XCTAssertEqual(ScreenRecordingSpeed.ten.storageEstimateTitle, "约60M/30分钟")
-        XCTAssertEqual(ScreenRecordingSpeed.twenty.storageEstimateTitle, "约30M/30分钟")
+        XCTAssertEqual(ScreenRecordingSpeed.five.storageEstimateTitle, "约 120MB/30 分钟")
+        XCTAssertEqual(ScreenRecordingSpeed.ten.storageEstimateTitle, "约 60MB/30 分钟")
+        XCTAssertEqual(ScreenRecordingSpeed.twenty.storageEstimateTitle, "约 30MB/30 分钟")
     }
 
     func testSpeedRecordingSettingsCanOnlyChangeWhileIdle() {

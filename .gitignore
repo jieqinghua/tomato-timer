@@ -2,3 +2,14 @@
 DerivedData/
 xcuserdata/
 *.xcuserstate
+.DS_Store
+*.xcresult
+*.xcarchive
+*.dSYM/
+
+# Local-only project process/design/reference materials.
+# Keep GitHub focused on source, project files, and in-app assets.
+docs/
+demo/
+resources/
+design-qa.md
