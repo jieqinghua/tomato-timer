@@ -53,19 +53,9 @@ struct TimerMenuView: View {
             exitFooter
         }
         .frame(width: 388, height: 660)
-        .background {
-            RoundedRectangle(cornerRadius: 32, style: .continuous)
-                .fill(TomatoPalette.panel)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 32, style: .continuous)
-                        .stroke(TomatoPalette.border, lineWidth: 1)
-                }
-                .shadow(color: TomatoPalette.shadow.opacity(0.18), radius: 36, y: 20)
-                .shadow(color: .white.opacity(0.72), radius: 1, y: -1)
-        }
+        .background(TomatoPalette.panel)
         .overlay {
             GrainOverlay()
-                .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
                 .allowsHitTesting(false)
         }
         .scaleEffect(TomatoTypography.contentScale, anchor: .topLeading)
@@ -75,6 +65,7 @@ struct TimerMenuView: View {
             selectedTab = initialTab
             viewModel.refreshReadyEncouragement()
             refreshSpeedRecordingDirectoryURL()
+            configurePopoverWindow()
         }
         .background(tabKeyboardShortcuts)
     }
@@ -374,6 +365,29 @@ struct TimerMenuView: View {
             Text(value)
                 .foregroundStyle(TomatoPalette.secondaryText)
                 .monospacedDigit()
+        }
+    }
+
+    private func configurePopoverWindow() {
+        DispatchQueue.main.async {
+            guard let window = NSApp.windows.first(where: {
+                $0.className.contains("StatusBar") || $0.className.contains("MenuBar")
+            }) ?? NSApp.keyWindow else { return }
+            window.isOpaque = false
+            window.backgroundColor = .clear
+            window.styleMask.insert(.fullSizeContentView)
+            hideVisualEffectView(in: window.contentView)
+        }
+    }
+
+    private func hideVisualEffectView(in view: NSView?) {
+        guard let view else { return }
+        if let visualEffectView = view as? NSVisualEffectView {
+            visualEffectView.isHidden = true
+            return
+        }
+        for subview in view.subviews {
+            hideVisualEffectView(in: subview)
         }
     }
 
