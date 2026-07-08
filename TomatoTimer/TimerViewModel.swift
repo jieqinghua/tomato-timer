@@ -198,7 +198,7 @@ final class TimerViewModel: ObservableObject {
 
         let savedFocusMinutes = defaults.integer(forKey: Self.focusMinutesKey)
         let savedBreakMinutes = defaults.integer(forKey: Self.breakMinutesKey)
-        let focus = savedFocusMinutes == 0 ? 15 : Self.clamped(savedFocusMinutes, range: 1...60)
+        let focus = savedFocusMinutes == 0 ? 30 : Self.clamped(savedFocusMinutes, range: 1...60)
         let rest = savedBreakMinutes == 0 ? 5 : Self.clamped(savedBreakMinutes, range: 1...60)
         let autoStartFocusAfterBreak = defaults.object(forKey: Self.autoStartFocusAfterBreakKey) as? Bool ?? true
         let notifyOnCompletion = defaults.object(forKey: Self.notifyOnCompletionKey) as? Bool ?? true
@@ -227,12 +227,12 @@ final class TimerViewModel: ObservableObject {
         )
         self.phase = .focus
         self.status = .idle
-        self.selectedFocusMood = .steady
+        self.selectedFocusMood = .energetic
         self.readyEncouragementIndex = encouragementIndex
         self.readyEncouragement = Self.readyEncouragements[encouragementIndex]
-        self.plannedFocusMinutes = FocusMood.steady.recommendedMinutes
+        self.plannedFocusMinutes = FocusMood.energetic.recommendedMinutes
         self.isUsingRecommendedFocusDuration = true
-        self.remainingSeconds = FocusMood.steady.recommendedMinutes * 60
+        self.remainingSeconds = FocusMood.energetic.recommendedMinutes * 60
         self.speedRecordingStatusMessage = nil
         persistStats()
     }
@@ -449,9 +449,10 @@ final class TimerViewModel: ObservableObject {
 
     private func prepareDefaultFocusSession() {
         phase = .focus
-        selectedFocusMood = .steady
-        plannedFocusMinutes = FocusMood.steady.recommendedMinutes
-        isUsingRecommendedFocusDuration = true
+        let minutes = Self.clamped(focusMinutes, range: 1...60)
+        selectedFocusMood = FocusMood.forDuration(minutes)
+        plannedFocusMinutes = minutes
+        isUsingRecommendedFocusDuration = false
         remainingSeconds = plannedFocusMinutes * 60
         advanceReadyEncouragement()
     }
