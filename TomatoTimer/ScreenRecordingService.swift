@@ -19,11 +19,11 @@ enum ScreenRecordingSpeed: Int, CaseIterable, Identifiable, Sendable {
     var storageEstimateTitle: String {
         switch self {
         case .five:
-            return "约 120M/30分钟"
+            return "约 120MB/30 分钟"
         case .ten:
-            return "约60M/30分钟"
+            return "约 60MB/30 分钟"
         case .twenty:
-            return "约30M/30分钟"
+            return "约 30MB/30 分钟"
         }
     }
 }
